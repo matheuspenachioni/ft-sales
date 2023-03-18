@@ -30,7 +30,7 @@ public class CustomerService {
 
 	public Customer saveCustomer(Customer customer) {
 		if (validateCustomer(customer)) {
-			return customerRepository.save(customer);
+			return customerRepository.saveAndFlush(customer);
 		} else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"O preço de custo e preço de venda do produto são obrigatórios e devem ser maiores que 0 (zero)!");
@@ -65,7 +65,14 @@ public class CustomerService {
 	}
 
 	public Boolean validateCustomer (Customer customer) {
-		if (customer.getMonthlyIncomeCustomer() != null && customer.getMonthlyIncomeCustomer().compareTo(BigDecimal.valueOf(0)) == 1) {
+		Optional<Customer> objCpf = customerRepository.findCustomerByCpf(customer.getCpfCustomer());
+		Optional<Customer> objEmail = customerRepository.findCustomerByEmail(customer.getEmailCustomer());
+		
+		if (customer.getMonthlyIncomeCustomer() != null && 
+			customer.getMonthlyIncomeCustomer().compareTo(BigDecimal.valueOf(0)) == 1 &&
+			objCpf.isPresent() && objCpf.get().getIdCustomer() != customer.getIdCustomer() && 
+			objEmail.isPresent()  && objEmail.get().getIdCustomer() != customer.getIdCustomer()
+		   ) {
 			return true;
 		} else {
 			return false;

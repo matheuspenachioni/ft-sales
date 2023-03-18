@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import org.hibernate.validator.constraints.br.CPF;
+import org.springframework.hateoas.Link;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import jakarta.persistence.Column;
@@ -12,6 +15,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,6 +37,7 @@ public class Customer {
 	@Column(name = "last_name_customer", nullable = false, length = 300)
     private String lastNameCustomer;
     
+	@CPF
 	@Column(name = "cpf_customer", nullable = false, unique = true)
     private String cpfCustomer;
     
@@ -43,6 +48,7 @@ public class Customer {
     @Column(name = "monthly_income_customer", nullable = false, precision = 10, scale = 2)
     private BigDecimal monthlyIncomeCustomer;
     
+    @Email
     @Column(name = "email_customer", nullable = false, unique = true)
     private String emailCustomer;
     
@@ -66,5 +72,9 @@ public class Customer {
     	setDateUpdatedCustomer(LocalDateTime.now());
     	setStatusCustomer(true);
     }
+
+	public void add(Link withSelfRel) {
+		
+	}
 
 }

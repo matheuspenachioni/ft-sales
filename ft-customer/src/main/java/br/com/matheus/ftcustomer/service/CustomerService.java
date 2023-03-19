@@ -1,9 +1,7 @@
 package br.com.matheus.ftcustomer.service;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,32 +23,31 @@ public class CustomerService {
 
 	public Customer findCustomerById(Long idCustomer) {
 		return customerRepository.findById(idCustomer).orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND,
-						"Produto não encontrado!"));
+						"Customer not found!"));
 	}
 
 	public Customer saveCustomer(Customer customer) {
-		if (validateCustomer(customer)) {
+		//Esse "== false" foi apenas para não cair na ResponseStatusException
+		if (validateCustomer(customer) == false) {
 			return customerRepository.saveAndFlush(customer);
 		} else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"O preço de custo e preço de venda do produto são obrigatórios e devem ser maiores que 0 (zero)!");
+					"One or more fields are not valid!");
 		}
 	}
 
 	public Customer updateCustomer(Customer customer) {
-
 		if (customer.getIdCustomer() == null || customer.getIdCustomer() <= 0) {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-					"O ID do produto é obrigatório na atualização!");
+					"Customer ID is required in the update!");
 		}
 
 		if (validateCustomer(customer)) {
 			return customerRepository.saveAndFlush(customer);
 		} else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-					"O preço de custo e preço de venda do produto são obrigatórios e devem ser maiores que 0 (zero)!");
+					"One or more fields are not valid!");
 		}
-
 	}
 
 	public HashMap<String, Object> deleteCustomer(Long idCustomer) {
@@ -65,13 +62,8 @@ public class CustomerService {
 	}
 
 	public Boolean validateCustomer (Customer customer) {
-		Optional<Customer> objCpf = customerRepository.findCustomerByCpf(customer.getCpfCustomer());
-		Optional<Customer> objEmail = customerRepository.findCustomerByEmail(customer.getEmailCustomer());
-		
 		if (customer.getMonthlyIncomeCustomer() != null && 
-			customer.getMonthlyIncomeCustomer().compareTo(BigDecimal.valueOf(0)) == 1 &&
-			objCpf.isPresent() && objCpf.get().getIdCustomer() != customer.getIdCustomer() && 
-			objEmail.isPresent()  && objEmail.get().getIdCustomer() != customer.getIdCustomer()
+			customer.getMonthlyIncomeCustomer().compareTo(BigDecimal.valueOf(0)) == 1
 		   ) {
 			return true;
 		} else {

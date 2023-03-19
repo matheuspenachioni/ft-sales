@@ -9,6 +9,6 @@ import br.com.matheus.ftcustomer.entity.Customer;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
-	Optional<Customer> findCustomerByCpf(String cpf);
-	Optional<Customer> findCustomerByEmail(String email);
+	Optional<Customer> findByCpfCustomer(String cpfCustomer);
+	Optional<Customer> findByEmailCustomer(String emailCustomer);
 }

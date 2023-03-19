@@ -1,24 +1,15 @@
+
 package br.com.matheus.ftcustomer.entity;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 
 import org.hibernate.validator.constraints.br.CPF;
-import org.springframework.hateoas.Link;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.validation.constraints.Email;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Data
@@ -41,21 +32,20 @@ public class Customer {
 	@Column(name = "cpf_customer", nullable = false, unique = true)
     private String cpfCustomer;
     
-    @JsonFormat(pattern = "dd/MM/yyyy", shape = JsonFormat.Shape.STRING)
-    @Column(name = "birth_date_customer", nullable = false)
+    @JsonFormat(pattern = "dd/MM/yyyy")
+    @Column(name = "birth_date_customer")
     private LocalDate birthDateCustomer;
     
     @Column(name = "monthly_income_customer", nullable = false, precision = 10, scale = 2)
     private BigDecimal monthlyIncomeCustomer;
     
-    @Email
     @Column(name = "email_customer", nullable = false, unique = true)
     private String emailCustomer;
     
     @Column(name = "password_customer", nullable = false)
     private String passwordCustomer;
     
-    @Column(name = "status_customer", nullable = false)
+    @Column(name = "status_customer")
     private Boolean statusCustomer;
     
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", shape = JsonFormat.Shape.STRING)
@@ -67,14 +57,10 @@ public class Customer {
     private LocalDateTime dateUpdatedCustomer;
     
     @PrePersist
-    private void prePersist() {
+    public void prePersist() {
     	setDateCreatedCustomer(LocalDateTime.now());
     	setDateUpdatedCustomer(LocalDateTime.now());
     	setStatusCustomer(true);
     }
-
-	public void add(Link withSelfRel) {
-		
-	}
 
 }

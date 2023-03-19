@@ -1,11 +1,10 @@
 package br.com.matheus.ftcustomer.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+//import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import br.com.matheus.ftcustomer.entity.Customer;
 import br.com.matheus.ftcustomer.exception.ResponseGenericException;
@@ -27,9 +26,11 @@ public class CustomerController {
 	public ResponseEntity<Object> getAllCustomers() {
 		List<Customer> result = customerService.findAllCustomers();
 
-		for(Customer customer : result) {
-			customer.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CustomerController.class).getCustomerById(customer.getIdCustomer())).withSelfRel());
-		}
+		/* HATEOAS
+		* for(Customer customer : result) {
+		* customer.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CustomerController.class).getCustomerById(customer.getIdCustomer())).withSelfRel());
+		* }
+		*/
 
 		return ResponseEntity.ok().body(ResponseGenericException.response(result));
 	}
@@ -38,9 +39,10 @@ public class CustomerController {
 	public ResponseEntity<Object> getCustomerById(@PathVariable Long idCustomer) {
 		Customer result = customerService.findCustomerById(idCustomer);
 
-		result.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CustomerController.class).getCustomerById(result.getIdCustomer())).withSelfRel());
-		result.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CustomerController.class).getAllCustomers()).withRel("customers"));
-
+		/* HATEOAS
+		* result.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CustomerController.class).getCustomerById(result.getIdCustomer())).withSelfRel());
+		* result.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CustomerController.class).getAllCustomers()).withRel("customers"));
+		*/
 		return ResponseEntity.ok().body(ResponseGenericException.response(result));
 	}
 	
@@ -56,7 +58,7 @@ public class CustomerController {
 		return ResponseEntity.ok().body(ResponseGenericException.response(result));
 	}
 	
-	@DeleteMapping(value = "/delete/{idCustmer}")
+	@DeleteMapping(value = "/delete/{idCustomer}")
 	public ResponseEntity<Object> deleteCustomer(@PathVariable Long idCustomer) {
 		HashMap<String, Object> result = customerService.deleteCustomer(idCustomer);
         return ResponseEntity.ok().body(ResponseGenericException.response(result));

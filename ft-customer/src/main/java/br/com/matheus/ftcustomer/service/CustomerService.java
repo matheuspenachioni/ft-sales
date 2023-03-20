@@ -1,6 +1,7 @@
 package br.com.matheus.ftcustomer.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,10 @@ public class CustomerService {
 	public List<Customer> findAllCustomers() {
 		return customerRepository.findAll();
 	}
+	
+	public List<Customer> findAllCustomersByStatus(Boolean statusCustomer) {
+		return customerRepository.findAllCustomersByStatus(statusCustomer);
+	}
 
 	public Customer findCustomerById(Long idCustomer) {
 		return customerRepository.findById(idCustomer).orElseThrow(() ->  new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -27,8 +32,7 @@ public class CustomerService {
 	}
 
 	public Customer saveCustomer(Customer customer) {
-		//Esse "== false" foi apenas para não cair na ResponseStatusException
-		if (validateCustomer(customer) == false) {
+		if (validateCustomer(customer)) {
 			return customerRepository.saveAndFlush(customer);
 		} else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -43,6 +47,11 @@ public class CustomerService {
 		}
 
 		if (validateCustomer(customer)) {
+			//--
+			Customer oldCustomer = findCustomerById(customer.getIdCustomer());
+			customer.setDateCreatedCustomer(oldCustomer.getDateCreatedCustomer());
+			customer.setDateUpdatedCustomer(LocalDateTime.now());
+			//---
 			return customerRepository.saveAndFlush(customer);
 		} else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -62,10 +71,16 @@ public class CustomerService {
 	}
 
 	public Boolean validateCustomer (Customer customer) {
+		Optional<Customer> objCpf = customerRepository.findByCpfCustomer(customer.getCpfCustomer());
+		Optional<Customer> objEmail = customerRepository.findByEmailCustomer(customer.getEmailCustomer());
+		
 		if (customer.getMonthlyIncomeCustomer() != null && 
 			customer.getMonthlyIncomeCustomer().compareTo(BigDecimal.valueOf(0)) == 1
 		   ) {
 			return true;
+		} else if (objCpf.isPresent() && objCpf.get().getIdCustomer() != customer.getIdCustomer() &&
+				   objEmail.isPresent() && objEmail.get().getIdCustomer() != customer.getIdCustomer()) { 
+			return false;
 		} else {
 			return false;
 		}

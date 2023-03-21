@@ -32,8 +32,8 @@ public class CustomerController {
 		return ResponseEntity.ok().body(ResponseGenericException.response(result));
 	}
 	
-	@GetMapping(value = "/results/status={statusCustomer}")
-	public ResponseEntity<Object> getAllActiveCustomers(@PathVariable Boolean statusCustomer) {
+	@GetMapping(value = "/results")
+	public ResponseEntity<Object> getAllActiveCustomers(@RequestParam Boolean statusCustomer) {
 		List<Customer> result = customerService.findAllCustomersByStatus(statusCustomer);
 
 		for(Customer customer : result) {

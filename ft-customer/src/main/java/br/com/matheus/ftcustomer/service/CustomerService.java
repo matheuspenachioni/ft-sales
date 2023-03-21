@@ -6,6 +6,7 @@ import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -17,6 +18,9 @@ public class CustomerService {
 	
 	@Autowired
 	private CustomerRepository customerRepository;
+	
+	@Autowired
+	private PasswordEncoder encoder;
 	
 	public List<Customer> findAllCustomers() {
 		return customerRepository.findAll();
@@ -33,6 +37,8 @@ public class CustomerService {
 
 	public Customer saveCustomer(Customer customer) {
 		if (validateCustomer(customer)) {
+			customer.setPasswordCustomer(encoder.encode(customer.getPasswordCustomer()));
+			List obj = customer.getAddresses();
 			return customerRepository.saveAndFlush(customer);
 		} else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -47,11 +53,8 @@ public class CustomerService {
 		}
 
 		if (validateCustomer(customer)) {
-			//--
-			Customer oldCustomer = findCustomerById(customer.getIdCustomer());
-			customer.setDateCreatedCustomer(oldCustomer.getDateCreatedCustomer());
+			encryptPassword(customer);
 			customer.setDateUpdatedCustomer(LocalDateTime.now());
-			//---
 			return customerRepository.saveAndFlush(customer);
 		} else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -71,19 +74,21 @@ public class CustomerService {
 	}
 
 	public Boolean validateCustomer (Customer customer) {
-		Optional<Customer> objCpf = customerRepository.findByCpfCustomer(customer.getCpfCustomer());
-		Optional<Customer> objEmail = customerRepository.findByEmailCustomer(customer.getEmailCustomer());
-		
 		if (customer.getMonthlyIncomeCustomer() != null && 
 			customer.getMonthlyIncomeCustomer().compareTo(BigDecimal.valueOf(0)) == 1
 		   ) {
 			return true;
-		} else if (objCpf.isPresent() && objCpf.get().getIdCustomer() != customer.getIdCustomer() &&
-				   objEmail.isPresent() && objEmail.get().getIdCustomer() != customer.getIdCustomer()) { 
-			return false;
 		} else {
 			return false;
 		}
+	}
+	
+	public void encryptPassword (Customer customer) {
+		Optional<Customer> oldOBJ = customerRepository.findById(customer.getIdCustomer());
+		
+		if (!customer.getPasswordCustomer().equals(oldOBJ.get().getPasswordCustomer())) {
+			customer.setPasswordCustomer(encoder.encode(customer.getPasswordCustomer()));
+		} 
 	}
 
 }

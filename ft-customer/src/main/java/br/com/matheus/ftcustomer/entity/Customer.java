@@ -3,21 +3,22 @@ package br.com.matheus.ftcustomer.entity;
 
 import java.math.BigDecimal;
 import java.time.*;
+import java.util.*;
 
 import org.hibernate.validator.constraints.br.CPF;
-import org.springframework.hateoas.Link;
 import org.springframework.hateoas.RepresentationModel;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -65,6 +66,9 @@ public class Customer extends RepresentationModel<Customer>{
     @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss", shape = JsonFormat.Shape.STRING)
     @Column(name = "date_updated_customer")
     private LocalDateTime dateUpdatedCustomer;
+    
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Address> addresses = new ArrayList<>();
     
     @PrePersist
     public void prePersist() {

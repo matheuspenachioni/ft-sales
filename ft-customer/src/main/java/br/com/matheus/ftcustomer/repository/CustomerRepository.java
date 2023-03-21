@@ -13,6 +13,7 @@ import br.com.matheus.ftcustomer.entity.Customer;
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 	Optional<Customer> findByCpfCustomer(String cpfCustomer);
 	Optional<Customer> findByEmailCustomer(String emailCustomer);
+	
 	@Query(value = "SELECT * FROM customer c WHERE c.status_customer = ?", nativeQuery = true)
 	List<Customer> findAllCustomersByStatus(Boolean statusCustomer);
 }

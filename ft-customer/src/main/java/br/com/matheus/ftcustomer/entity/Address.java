@@ -1,5 +1,6 @@
 package br.com.matheus.ftcustomer.entity;
 
+import br.com.matheus.ftcustomer.entity.dto.AddressDTO;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,25 +15,35 @@ import lombok.*;
 public class Address {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "id_address")
-	private Long idAddress;
+	private Long id;
 	
 	@Column(name = "cep_address")
-	private String cepAddress;
+	private String cep;
 	
 	@Column(name = "patio_address")
-	private String patioAddress;
+	private String logradouro;
 	
 	@Column(name = "complement_address")
-	private String complementAddress;
+	private String complemento;
 	
 	@Column(name = "district_address")
-	private String districtAddress;
+	private String bairro;
 	
 	@Column(name = "locality_address")
-	private String localityAddress;
+	private String localidade;
 	
 	@Column(name = "uf_address")
-	private String ufAddress;
+	private String uf;
+	
+	public Address(AddressDTO obj) {
+		super();
+		this.id = obj.getId();
+		this.cep = obj.getCep();
+		this.logradouro = obj.getLogradouro();
+		this.complemento = obj.getComplemento();
+		this.bairro = obj.getBairro();
+		this.localidade = obj.getLocalidade();
+		this.uf = obj.getUf();
+	}
 	
 }

@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import br.com.matheus.ftcustomer.entity.Customer;
+import br.com.matheus.ftcustomer.entity.dto.AddressDTO;
 import br.com.matheus.ftcustomer.repository.CustomerRepository;
 
 @Service
@@ -38,7 +40,17 @@ public class CustomerService {
 	public Customer saveCustomer(Customer customer) {
 		if (validateCustomer(customer)) {
 			customer.setPasswordCustomer(encoder.encode(customer.getPasswordCustomer()));
-			List obj = customer.getAddresses();
+			
+			for (int i = 0; i < customer.getAddresses().size(); i++) {
+				AddressDTO addressDTO = searchCep(customer.getAddresses().get(i).getCep());
+				
+				customer.getAddresses().get(i).setLogradouro(addressDTO.getLogradouro());
+				customer.getAddresses().get(i).setComplemento(addressDTO.getComplemento());
+				customer.getAddresses().get(i).setBairro(addressDTO.getBairro());
+				customer.getAddresses().get(i).setLocalidade(addressDTO.getLocalidade());
+				customer.getAddresses().get(i).setUf(addressDTO.getUf());
+			}
+			
 			return customerRepository.saveAndFlush(customer);
 		} else {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
@@ -48,10 +60,10 @@ public class CustomerService {
 
 	public Customer updateCustomer(Customer customer) {
 		if (customer.getIdCustomer() == null || customer.getIdCustomer() <= 0) {
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
 					"Customer ID is required in the update!");
 		}
-
+		
 		if (validateCustomer(customer)) {
 			encryptPassword(customer);
 			customer.setDateUpdatedCustomer(LocalDateTime.now());
@@ -63,7 +75,7 @@ public class CustomerService {
 	}
 
 	public HashMap<String, Object> deleteCustomer(Long idCustomer) {
-		Optional<Customer> customer = Optional.ofNullable(customerRepository.findById(idCustomer).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado!")));
+		Optional<Customer> customer = Optional.ofNullable(customerRepository.findById(idCustomer).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found!")));
 
 		customerRepository.delete(customer.get());
 
@@ -89,6 +101,10 @@ public class CustomerService {
 		if (!customer.getPasswordCustomer().equals(oldOBJ.get().getPasswordCustomer())) {
 			customer.setPasswordCustomer(encoder.encode(customer.getPasswordCustomer()));
 		} 
+	}
+	
+	public AddressDTO searchCep(String cep) {
+		return new RestTemplate().getForEntity("https://viacep.com.br/ws/"+ cep +"/json/", AddressDTO.class).getBody();
 	}
 
 }

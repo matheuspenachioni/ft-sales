@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
 import br.com.matheus.ftcustomer.entity.Customer;
+import br.com.matheus.ftcustomer.entity.dto.AddressDTO;
 import br.com.matheus.ftcustomer.exception.ResponseGenericException;
 import br.com.matheus.ftcustomer.service.CustomerService;
 
@@ -25,25 +26,36 @@ public class CustomerController {
 	public ResponseEntity<Object> getAllCustomers() {
 		List<Customer> result = customerService.findAllCustomers();
 
+		int i = 0;
 		for(Customer customer : result) {
 			customer.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CustomerController.class).getCustomerById(customer.getIdCustomer())).withSelfRel());
+			i++;
 		}
 
-		return ResponseEntity.ok().body(ResponseGenericException.response(result));
+		return ResponseEntity.ok().body(ResponseGenericException.response(result, i));
 	}
 	
 	@GetMapping(value = "/results")
 	public ResponseEntity<Object> getAllActiveCustomers(@RequestParam Boolean statusCustomer) {
 		List<Customer> result = customerService.findAllCustomersByStatus(statusCustomer);
 
+		int i = 0;
 		for(Customer customer : result) {
 			customer.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(CustomerController.class).getCustomerById(customer.getIdCustomer())).withSelfRel());
+			i++;
 		}
 
+		return ResponseEntity.ok().body(ResponseGenericException.response(result, i));
+	}
+	
+	@GetMapping(value = "/{cep}/info")
+	public ResponseEntity<Object> getInfoCep(@PathVariable String cep) {
+		AddressDTO result = customerService.searchCep(cep);
+		
 		return ResponseEntity.ok().body(ResponseGenericException.response(result));
 	}
 	
-	@GetMapping(value = "/findCustomer/{idCustomer}")
+	@GetMapping(value = "/{idCustomer}/details")
 	public ResponseEntity<Object> getCustomerById(@PathVariable Long idCustomer) {
 		Customer result = customerService.findCustomerById(idCustomer);
 
@@ -59,13 +71,13 @@ public class CustomerController {
 		return ResponseEntity.ok().body(ResponseGenericException.response(result));
 	}
 	
-	@PutMapping(value = "/update/{idCustomer}")
+	@PutMapping(value = "/{idCustomer}/update")
 	public ResponseEntity<Object> updateCustomer(@RequestBody Customer customer) {
 		Customer result = customerService.updateCustomer(customer);
 		return ResponseEntity.ok().body(ResponseGenericException.response(result));
 	}
 	
-	@DeleteMapping(value = "/delete/{idCustomer}")
+	@DeleteMapping(value = "/{idCustomer}/delete")
 	public ResponseEntity<Object> deleteCustomer(@PathVariable Long idCustomer) {
 		HashMap<String, Object> result = customerService.deleteCustomer(idCustomer);
         return ResponseEntity.ok().body(ResponseGenericException.response(result));

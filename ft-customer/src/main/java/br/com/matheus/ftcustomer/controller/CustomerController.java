@@ -12,6 +12,7 @@ import br.com.matheus.ftcustomer.exception.ResponseGenericException;
 import br.com.matheus.ftcustomer.service.CustomerService;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping(value = "/api/v1/customers")
@@ -22,6 +23,7 @@ public class CustomerController {
 	@Autowired
 	private CustomerService customerService;
 	
+	@ApiOperation(value = "List of all existing Customers")
 	@GetMapping(value = "/list")
 	public ResponseEntity<Object> getAllCustomers() {
 		List<Customer> result = customerService.findAllCustomers();
@@ -35,6 +37,7 @@ public class CustomerController {
 		return ResponseEntity.ok().body(ResponseGenericException.response(result, i));
 	}
 	
+	@ApiOperation(value = "Fetches all Customers with 'true' or 'false' status by QUERY PARAM")
 	@GetMapping(value = "/results")
 	public ResponseEntity<Object> getAllActiveCustomers(@RequestParam Boolean statusCustomer) {
 		List<Customer> result = customerService.findAllCustomersByStatus(statusCustomer);
@@ -48,13 +51,7 @@ public class CustomerController {
 		return ResponseEntity.ok().body(ResponseGenericException.response(result, i));
 	}
 	
-	@GetMapping(value = "/{cep}/info")
-	public ResponseEntity<Object> getInfoCep(@PathVariable String cep) {
-		AddressDTO result = customerService.searchCep(cep);
-		
-		return ResponseEntity.ok().body(ResponseGenericException.response(result));
-	}
-	
+	@ApiOperation(value = "Search a Customer’s information by ID")
 	@GetMapping(value = "/{idCustomer}/details")
 	public ResponseEntity<Object> getCustomerById(@PathVariable Long idCustomer) {
 		Customer result = customerService.findCustomerById(idCustomer);
@@ -65,18 +62,21 @@ public class CustomerController {
 		return ResponseEntity.ok().body(ResponseGenericException.response(result));
 	}
 	
+	@ApiOperation(value = "Saves the information of a new Customer")
 	@PostMapping(value = "/save")
 	public ResponseEntity<Object> saveCustomer(@RequestBody Customer customer) {
 		Customer result = customerService.saveCustomer(customer);
 		return ResponseEntity.ok().body(ResponseGenericException.response(result));
 	}
 	
+	@ApiOperation(value = "Updates the information of an existing Customer by ID")
 	@PutMapping(value = "/{idCustomer}/update")
 	public ResponseEntity<Object> updateCustomer(@RequestBody Customer customer) {
 		Customer result = customerService.updateCustomer(customer);
 		return ResponseEntity.ok().body(ResponseGenericException.response(result));
 	}
 	
+	@ApiOperation(value = "Delete a Customer by ID")
 	@DeleteMapping(value = "/{idCustomer}/delete")
 	public ResponseEntity<Object> deleteCustomer(@PathVariable Long idCustomer) {
 		HashMap<String, Object> result = customerService.deleteCustomer(idCustomer);
